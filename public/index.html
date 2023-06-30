@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SSE測試</title>
+</head>
+
+<body>
+    <h1>SSE測試</h1>
+    <div>使用者: <span id="user-id"></span></div>
+    <input type="text" id="message-input" placeholder="輸入訊息">
+    <button onclick="sendMessage()">送出</button>
+    <table id="message-table">
+        <tr>
+            <th>使用者</th>
+            <th>訊息</th>
+        </tr>
+    </table>
+    <script>
+        const userIdField = document.getElementById('user-id')
+        let userId = ''
+
+        function updateUserId(id) {
+            userId = id
+            userIdField.textContent = id
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value;
+
+            fetch('/message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId, message }),
+            });
+
+            messageInput.value = '';
+        }
+
+        const eventSource = new EventSource('/sse');
+        eventSource.addEventListener('connected', function (event) {
+            const eventData = JSON.parse(event.data);
+            updateUserId(eventData.userId)
+        });
+        eventSource.addEventListener('messageHistory', function (event) {
+            const messageHistory = JSON.parse(event.data);
+            displayMessages(messageHistory)
+        });
+
+        function displayMessages(messages) {
+            const messageTable = document.getElementById('message-table');
+            messageTable.innerHTML = '';
+
+            messages.forEach(function (message) {
+                displayMessage(message.userId, message.message);
+            });
+        }
+
+        function displayMessage(userId, message) {
+            const messageTable = document.getElementById('message-table');
+            const newRow = messageTable.insertRow();
+            const userIdCell = newRow.insertCell();
+            const messageCell = newRow.insertCell();
+
+            userIdCell.textContent = userId;
+            messageCell.textContent = message;
+        }
+    </script>
+</body>
+
+</html>
