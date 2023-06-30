@@ -1,4 +1,3 @@
-const http = require('http');
 const express = require('express');
 const app = express();
 const { v4: uuidv4 } = require('uuid');
@@ -61,7 +60,4 @@ function sendSSEEvent(res, eventName, eventData) {
 
 app.listen(8080, () => {
   console.log('Server listening on port 8080');
-  setInterval(() => {
-    http.get('https://sse-example.fly.dev/ping')
-  }, 3000);
 });
