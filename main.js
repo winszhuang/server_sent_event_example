@@ -1,3 +1,4 @@
+const http = require('http');
 const express = require('express');
 const app = express();
 const { v4: uuidv4 } = require('uuid');
@@ -5,9 +6,13 @@ const { v4: uuidv4 } = require('uuid');
 const clients = new Map();
 const messageHistory = [];
 
+app.get('/ping', (req, res) => {
+  console.log('有人ping我');
+  res.send('pong');
+})
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
-  });
+  res.sendFile(__dirname + '/public/index.html');
+});
 
 app.get('/sse', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -33,7 +38,7 @@ app.get('/sse', (req, res) => {
   sendSSEEvent(res, 'connected', {
     message: `Client ${clientId} connected`,
     userId: clientId
-    });
+  });
 });
 
 app.post('/message', express.json(), (req, res) => {
@@ -56,4 +61,7 @@ function sendSSEEvent(res, eventName, eventData) {
 
 app.listen(8080, () => {
   console.log('Server listening on port 8080');
+  setInterval(() => {
+    http.get('https://sse-example.fly.dev/ping')
+  }, 14 * 60 * 1000);
 });
