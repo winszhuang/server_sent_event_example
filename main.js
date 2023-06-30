@@ -63,5 +63,5 @@ app.listen(8080, () => {
   console.log('Server listening on port 8080');
   setInterval(() => {
     http.get('https://sse-example.fly.dev/ping')
-  }, 14 * 60 * 1000);
+  }, 3000);
 });
